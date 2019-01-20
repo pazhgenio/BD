@@ -10,61 +10,10 @@ namespace DataBaseForColleagues
 {
     class Program
     {
-        static string VerifyLogin(string Login)
+        static string PasswordAndLoginAdding(string Login, string Password)
         {
             string ConnectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=R:\c#\DataBaseForColleagues\DataBaseForColleagues\MainDB.mdf;Integrated Security=True";
-
-            using (SqlConnection Connection = new SqlConnection(ConnectionString))
-            {
-                Connection.Open();
-                string SQLVerifyLogin = String.Format("SELECT Login FROM Users WHERE Login = '{0}'", Login);
-
-                SqlCommand CommandSQLVerifyLogin = new SqlCommand(SQLVerifyLogin, Connection);
-                SqlDataReader ReaderCommandSQLVerifyLogin = CommandSQLVerifyLogin.ExecuteReader();
-
-                if(ReaderCommandSQLVerifyLogin.Read())
-                {
-                    bool ThatLoginUnique = false;
-
-                    do
-                    {
-                        Connection.Close();
-
-                        Console.WriteLine("Ваш логин неуникален, попробуйте придумать что-нибудь пооригинальнее");
-                        string UniqueLogin = Console.ReadLine();
-
-                        string SQLVerifyUniqueLogin = String.Format("SELECT Login FROM Users WHERE Login = '{0}'", UniqueLogin);
-
-                        SqlCommand CommandSQLVerifyUniqueLogin = new SqlCommand(SQLVerifyUniqueLogin, Connection);
-
-                        Connection.Open();
-
-                        SqlDataReader ReaderCommandSQLVerifyUniqueLogin = CommandSQLVerifyUniqueLogin.ExecuteReader();
-
-                        if (!ReaderCommandSQLVerifyUniqueLogin.Read())
-                        {
-                            Console.Clear();
-                            Console.WriteLine("Здорово, теперь ваш логин такой неповторимый, давайте придумаем пароль");
-                            ThatLoginUnique = true;
-                        }
-                        
-                    }
-                    while (ThatLoginUnique == false);
-                }
-                else
-                {
-                    Console.Clear();
-                    Console.WriteLine("Ваш логин такой неповторимый, давайте придумаем пароль");
-                }
-                Connection.Close();
-            }
-            return Login;
-        }
-
-        static string LoginAndPasswordAdding(string Login, string Password)
-        {
-            string ConnectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=R:\c#\DataBaseForColleagues\DataBaseForColleagues\MainDB.mdf;Integrated Security=True";
-
+            string SucessfulAdding = "Теперь вы можете авторизоваться";
             using (SqlConnection Connection = new SqlConnection(ConnectionString))
             {
                 Connection.Open();
@@ -72,19 +21,41 @@ namespace DataBaseForColleagues
                 SqlCommand SQLCommandLoginAndPasswordAdding = new SqlCommand(SQLLoginAndPasswordAdding, Connection);
                 int NumbersOfAddings = SQLCommandLoginAndPasswordAdding.ExecuteNonQuery();
 
-                if (NumbersOfAddings == 2)
+                if (NumbersOfAddings == 1)
                 {
-                    Console.WriteLine("Вы усаешно зарегистрировались");
+                    Console.WriteLine("Вы успешно зарегистрировались");
                 }
                 Connection.Close();
             }
-            return Login;
+            return SucessfulAdding;
         }
 
+        static string Test()
+        {
+            string a = "s";
+
+            string ConnectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=R:\c#\DataBaseForColleagues\DataBaseForColleagues\MainDB.mdf;Integrated Security=True";
+
+            using (SqlConnection Connection = new SqlConnection(ConnectionString))
+            {
+                Connection.Open();
+                string SQLTEST = "SELECT Password FROM Users";
+                SqlCommand SQLCOMMANDTEXT = new SqlCommand(SQLTEST, Connection);
+                SqlDataReader READERSQLCOMMANDTEXT = SQLCOMMANDTEXT.ExecuteReader();
+                while (READERSQLCOMMANDTEXT.Read())
+                {
+                    Console.WriteLine(READERSQLCOMMANDTEXT[0].ToString());
+                }
+                READERSQLCOMMANDTEXT.Close();
+                Connection.Close();
+            }
+            return a;
+        }
 
         static void Main(string[] args)
         {
             int AnswerInMenu = 0;
+
             try
             {
                 Console.WriteLine("Здравствуйте, введите 1 - чтобы зарегистрироваться в мессенджере");
@@ -97,8 +68,6 @@ namespace DataBaseForColleagues
                 AnswerInMenu = 1;
             }
 
-            
-
             if (AnswerInMenu != 1)
             {
                 Console.Clear();
@@ -108,14 +77,55 @@ namespace DataBaseForColleagues
 
             if (AnswerInMenu == 1)
             {
+                Test();
                 Console.WriteLine("Давайте не терять ни минуты, придумайте логин");
                 string Login = Console.ReadLine();
-                VerifyLogin(Login);
 
-                string Password = Console.ReadLine();
-                if(Password.Length <= 7)
+                string ConnectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=R:\c#\DataBaseForColleagues\DataBaseForColleagues\MainDB.mdf;Integrated Security=True";
+                bool ThatLoginUnique = false;
+
+                using (SqlConnection Connection = new SqlConnection(ConnectionString))
                 {
-                    bool AllowablePassword = false;
+                    Connection.Open();
+                    string SQLVerifyLogin = String.Format("SELECT Login FROM Users WHERE Login = '{0}'", Login);
+
+                    SqlCommand CommandSQLVerifyLogin = new SqlCommand(SQLVerifyLogin, Connection);
+                    SqlDataReader ReaderCommandSQLVerifyLogin = CommandSQLVerifyLogin.ExecuteReader();
+
+                    if (ReaderCommandSQLVerifyLogin.Read())
+                    {
+                        do
+                        {
+                            Connection.Close();
+
+                            Console.WriteLine("Ваш логин неуникален, попробуйте придумать что-нибудь пооригинальнее");
+                            string UniqueLogin = Console.ReadLine();
+
+                            string SQLVerifyUniqueLogin = String.Format("SELECT Login FROM Users WHERE Login = '{0}'", UniqueLogin);
+
+                            SqlCommand CommandSQLVerifyUniqueLogin = new SqlCommand(SQLVerifyUniqueLogin, Connection);
+
+                            Connection.Open();
+
+                            SqlDataReader ReaderCommandSQLVerifyUniqueLogin = CommandSQLVerifyUniqueLogin.ExecuteReader();
+
+                            if (!ReaderCommandSQLVerifyUniqueLogin.Read())
+                            {
+                                ThatLoginUnique = true;
+                            }
+
+                        }
+                        while (ThatLoginUnique == false);
+                    }
+                    Connection.Close();
+                }
+
+                Console.WriteLine("Давайте не терять ни минуты, придумайте пароль");
+                string Password = Console.ReadLine();
+
+                if (Password.Length <= 7)
+                {
+                    bool PasswordIsAllowable = false;
 
                     do
                     {
@@ -124,18 +134,18 @@ namespace DataBaseForColleagues
 
                         if (Password.Length > 7)
                         {
-                            AllowablePassword = true;
+                            PasswordIsAllowable = true;
                         }
-                    } while (AllowablePassword == false);
+                    } while (PasswordIsAllowable == false);
                 }
-                Console.Clear();   
-                
+
+                Console.Clear();
                 Console.WriteLine("Да-да, вот так, но всё-таки, введите пароль заново");
                 string PasswordAgain = Console.ReadLine();
 
                 if (Password != PasswordAgain)
                 {
-                    bool SamePasswords = false;
+                    bool PasswordsAreSame = false;
 
                     do
                     {
@@ -148,19 +158,15 @@ namespace DataBaseForColleagues
 
                         if (Password == PasswordAgain)
                         {
-                            SamePasswords = true;
-                            
+                            PasswordsAreSame = true;
                         }
 
-                    } while (SamePasswords == false);
+                    } while (PasswordsAreSame == false);
                 }
 
-                if (Password == PasswordAgain)
-                {
-                    LoginAndPasswordAdding(Login, Password);
-                }
+                Console.Clear();
+                Console.WriteLine(PasswordAndLoginAdding(Login, Password));
             }
-
             Console.ReadKey();
         }
     }
